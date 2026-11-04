@@ -1,0 +1,149 @@
+{
+  "info": {
+    "name": "Tugas API Produk - CRUD Evidence",
+    "description": "Kumpulan request untuk bukti pengujian tugas API produk (ExpressJS + Prisma). Jalankan server dengan `npm start` dulu, lalu kirim request berurutan. Expected status ada di deskripsi tiap request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 GET semua produk (200)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/products"
+      },
+      "response": []
+    },
+    {
+      "name": "02 GET detail produk id 1 (200)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/products/1"
+      },
+      "response": []
+    },
+    {
+      "name": "03 GET produk tidak ada (404)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/products/999"
+      },
+      "response": []
+    },
+    {
+      "name": "04 POST produk baru (201)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Penghapus\",\n  \"price\": 3000\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products"
+      },
+      "response": []
+    },
+    {
+      "name": "05 POST field kurang (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Kaiden\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products"
+      },
+      "response": []
+    },
+    {
+      "name": "06 POST price negatif (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"TipEx\",\n  \"price\": -500\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products"
+      },
+      "response": []
+    },
+    {
+      "name": "07 PUT update produk (200)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 3,\n  \"name\": \"Penghapus Merek A\",\n  \"price\": 3500\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products/3"
+      },
+      "response": []
+    },
+    {
+      "name": "08 PUT produk tidak ada (404)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 999,\n  \"name\": \"TidakAda\",\n  \"price\": 1000\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products/999"
+      },
+      "response": []
+    },
+    {
+      "name": "09 PUT field kurang (400)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 3,\n  \"name\": \"HanyaNama\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "http://localhost:3000/products/3"
+      },
+      "response": []
+    },
+    {
+      "name": "10 DELETE produk (200)",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:3000/products/3"
+      },
+      "response": []
+    },
+    {
+      "name": "11 DELETE produk tidak ada (404)",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:3000/products/999"
+      },
+      "response": []
+    },
+    {
+      "name": "12 GET produk terhapus (404)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/products/3"
+      },
+      "response": []
+    },
+    {
+      "name": "13 GET endpoint tidak ada (404 JSON)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/ngawur"
+      },
+      "response": []
+    }
+  ]
+}
