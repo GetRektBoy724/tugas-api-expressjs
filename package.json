@@ -1,0 +1,19 @@
+{
+  "name": "tugas-api-expressjs",
+  "version": "1.0.0",
+  "description": "Tugas API daftar produk - ExpressJS (Pemrograman Web)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "pemweb"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
