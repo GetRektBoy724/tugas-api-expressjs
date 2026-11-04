@@ -6,7 +6,7 @@
 | **NRP** | 5027251052 |
 | **Mata Kuliah** | Pemrograman Web — Kelas C |
 
-Laporan pengujian API produk dengan skenario sukses, kesalahan validasi, data tidak ditemukan, dan perubahan database (before–after). Pengujian di bawah dilakukan dengan `curl` terhadap `http://localhost:3000`; request yang sama juga tersedia di `postman_collection.json` untuk dijalankan ulang di Postman/Bruno/Hoppscotch.
+Laporan pengujian API produk dengan skenario sukses, kesalahan validasi, data tidak ditemukan, dan perubahan database (before–after). Pengujian di bawah dilakukan dengan `curl` terhadap `http://localhost:3000`; request yang sama juga tersedia di `postman_collection.json` untuk dijalankan ulang di Postman/Bruno/Hoppscotch, dilengkapi assertion otomatis (test script) yang memeriksa status code dan isi body setiap response.
 
 ## Ringkasan Skenario
 
@@ -225,8 +225,8 @@ Aktivitas: POST produk baru (id 3) → PUT update id 3 → DELETE id 3 (skenario
 
 1. Jalankan server: `npm start`.
 2. Import `postman_collection.json` ke Postman/Bruno/Hoppscotch (Import → pilih file).
-3. Jalankan request 01–13 berurutan, screenshot tiap respons (status code + body terlihat).
+3. Jalankan request 01–15 berurutan, screenshot tiap respons (status code + body terlihat). Setiap request sudah memiliki assertion otomatis (test script) yang memeriksa status code dan isi body — jalankan lewat **Collection Runner** untuk mendapatkan ringkasan PASS/FAIL semua testcase, lalu screenshot hasilnya sebagai bukti pengujian.
 4. Untuk database: jalankan `npm run db:studio`, buka model **Product**:
    - Screenshot kondisi awal (before),
-   - jalankan request POST/PUT/DELETE,
+   - jalankan request 01–15 (setelah selesai, data di database berubah: id 2 jadi `Pulpen Gel/6000`, ada produk baru id 4 `Penghapus`),
    - screenshot kondisi akhir (after).

@@ -1,148 +1,513 @@
 {
   "info": {
-    "name": "Tugas API Produk - CRUD Evidence",
-    "description": "Kumpulan request untuk bukti pengujian tugas API produk (ExpressJS + Prisma). Jalankan server dengan `npm start` dulu, lalu kirim request berurutan. Expected status ada di deskripsi tiap request.",
+    "name": "Tugas API Produk - CRUD Evidence (dengan Test)",
+    "description": "15 testcase sesuai urutan skenario pada LAPORAN_EVIDENCE.md. Jalankan `npm run db:seed` dulu agar data kembali ke kondisi awal, nyalakan server dengan `npm start`, lalu kirim request berurutan dari 01 sampai 15. Setiap request memiliki assertion otomatis (status code + isi body) — jalankan lewat Collection Runner untuk melihat hasil PASS/FAIL per testcase.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "01 GET semua produk (200)",
+      "name": "01. GET semua produk",
       "request": {
         "method": "GET",
         "url": "http://localhost:3000/products"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"01. GET semua produk - status 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"01. GET semua produk - array 2 produk awal\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.length).to.eql(2);",
+              "    pm.expect(jsonData[0].name).to.eql('Buku');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "02 GET detail produk id 1 (200)",
+      "name": "02. GET detail produk id 1",
       "request": {
         "method": "GET",
         "url": "http://localhost:3000/products/1"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"02. GET detail produk - status 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"02. GET detail produk - objek produk Buku\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(1);",
+              "    pm.expect(jsonData.name).to.eql('Buku');",
+              "    pm.expect(jsonData.price).to.eql(15000);",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "03 GET produk tidak ada (404)",
+      "name": "03. GET produk tidak ada",
       "request": {
         "method": "GET",
         "url": "http://localhost:3000/products/999"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"03. GET produk tidak ada - status 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"03. GET produk tidak ada - pesan JSON\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Produk tidak ditemukan');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "04 POST produk baru (201)",
+      "name": "04. POST produk baru",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Penghapus\",\n  \"price\": 3000\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"04. POST produk baru - status 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"04. POST produk baru - produk tersimpan dengan id baru\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(3);",
+              "    pm.expect(jsonData.name).to.eql('Penghapus');",
+              "    pm.expect(jsonData.price).to.eql(3000);",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "05 POST field kurang (400)",
+      "name": "05. POST field kurang (validasi)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Kaiden\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"05. POST field kurang - status 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"05. POST field kurang - pesan validasi\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Field name dan price wajib diisi');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "06 POST price negatif (400)",
+      "name": "06. POST price negatif (validasi)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"TipEx\",\n  \"price\": -500\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"06. POST price negatif - status 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"06. POST price negatif - pesan validasi\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Field price harus berupa angka positif');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "07 PUT update produk (200)",
+      "name": "07. PUT update produk id 3",
       "request": {
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"id\": 3,\n  \"name\": \"Penghapus Merek A\",\n  \"price\": 3500\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products/3"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"07. PUT update produk - status 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"07. PUT update produk - data terupdate\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(3);",
+              "    pm.expect(jsonData.name).to.eql('Penghapus Merek A');",
+              "    pm.expect(jsonData.price).to.eql(3500);",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "08 PUT produk tidak ada (404)",
+      "name": "08. PUT produk tidak ada",
       "request": {
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"id\": 999,\n  \"name\": \"TidakAda\",\n  \"price\": 1000\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products/999"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"08. PUT produk tidak ada - status 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"08. PUT produk tidak ada - pesan JSON\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Produk tidak ditemukan');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "09 PUT field kurang (400)",
+      "name": "09. PUT field kurang (validasi)",
       "request": {
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"id\": 3,\n  \"name\": \"HanyaNama\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "http://localhost:3000/products/3"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"09. PUT field kurang - status 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"09. PUT field kurang - pesan validasi\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Field name dan price wajib diisi');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "10 DELETE produk (200)",
+      "name": "10. DELETE produk id 3",
       "request": {
         "method": "DELETE",
         "url": "http://localhost:3000/products/3"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"10. DELETE produk - status 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"10. DELETE produk - pesan sukses\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Produk berhasil dihapus');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "11 DELETE produk tidak ada (404)",
+      "name": "11. DELETE produk tidak ada",
       "request": {
         "method": "DELETE",
         "url": "http://localhost:3000/products/999"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"11. DELETE produk tidak ada - status 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"11. DELETE produk tidak ada - pesan JSON\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Produk tidak ditemukan');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "12 GET produk terhapus (404)",
+      "name": "12. GET produk terhapus",
       "request": {
         "method": "GET",
         "url": "http://localhost:3000/products/3"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"12. GET produk terhapus - status 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"12. GET produk terhapus - pesan JSON\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Produk tidak ditemukan');",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     },
     {
-      "name": "13 GET endpoint tidak ada (404 JSON)",
+      "name": "13. GET endpoint tidak ada (middleware 404)",
       "request": {
         "method": "GET",
         "url": "http://localhost:3000/ngawur"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"13. Endpoint tidak ada - status 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"13. Endpoint tidak ada - 404 JSON dari middleware\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql('Endpoint GET /ngawur tidak ditemukan');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "14. POST produk baru (tersimpan permanen)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Penghapus\",\n  \"price\": 3000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "http://localhost:3000/products"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"14. POST produk permanen - status 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"14. POST produk permanen - id 4 (id tidak dipakai ulang)\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(4);",
+              "    pm.expect(jsonData.name).to.eql('Penghapus');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "15. PUT update produk id 2 (permanen)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 2,\n  \"name\": \"Pulpen Gel\",\n  \"price\": 6000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "http://localhost:3000/products/2"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"15. PUT produk id 2 - status 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"15. PUT produk id 2 - data terupdate\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(2);",
+              "    pm.expect(jsonData.name).to.eql('Pulpen Gel');",
+              "    pm.expect(jsonData.price).to.eql(6000);",
+              "});"
+            ]
+          }
+        }
+      ],
       "response": []
     }
   ]
