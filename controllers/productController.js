@@ -53,4 +53,47 @@ async function createProduct(req, res, next) {
   }
 }
 
-module.exports = { getProducts, getProductById, createProduct };
+// PUT /products/:id -> 200, produk yang sudah diupdate; 404 jika tidak ada
+// Body sama dengan POST, ditambah id (id diambil dari parameter URL).
+async function updateProduct(req, res, next) {
+  try {
+    const { name, price } = req.body;
+    const error = validate(name, price);
+    if (error) {
+      return res.status(400).json({ message: error });
+    }
+
+    const product = await prisma.product.update({
+      where: { id: Number(req.params.id) },
+      data: { name, price },
+    });
+    res.status(200).json(product);
+  } catch (err) {
+    // P2025 = record dengan id tersebut tidak ada di database
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+    next(err);
+  }
+}
+
+// DELETE /products/:id -> 200, pesan; 404 jika tidak ada
+async function deleteProduct(req, res, next) {
+  try {
+    await prisma.product.delete({ where: { id: Number(req.params.id) } });
+    res.status(200).json({ message: 'Produk berhasil dihapus' });
+  } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+    next(err);
+  }
+}
+
+module.exports = {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
