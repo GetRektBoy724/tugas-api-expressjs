@@ -1,4 +1,4 @@
-const { all, find } = require('../data/products');
+const { all, find, create } = require('../data/products');
 
 // GET /products -> 200, array seluruh produk
 function getProducts(req, res) {
@@ -17,4 +17,18 @@ function getProductById(req, res) {
   res.status(200).json(product);
 }
 
-module.exports = { getProducts, getProductById };
+// POST /products -> 201, produk yang baru dibuat
+function createProduct(req, res) {
+  const { name, price } = req.body;
+
+  if (!name || price === undefined) {
+    return res.status(400).json({
+      message: 'Field name dan price wajib diisi',
+    });
+  }
+
+  const product = create({ name, price });
+  res.status(201).json(product);
+}
+
+module.exports = { getProducts, getProductById, createProduct };
