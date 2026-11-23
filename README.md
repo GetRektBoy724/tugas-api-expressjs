@@ -1,4 +1,4 @@
-# Tugas: API Daftar Produk — ExpressJS
+# Tugas: API Daftar Produk — ExpressJS + Prisma
 
 | | |
 |---|---|
@@ -6,111 +6,91 @@
 | **NRP** | 5027251052 |
 | **Mata Kuliah** | Pemrograman Web — Kelas C |
 
-API daftar produk menggunakan **ExpressJS** dengan data disimpan di **array** (tanpa database).
-
-Dibuat untuk tugas Pemrograman Web — implementasi `GET /products`, `GET /products/:id`, dan `POST /products` dengan **pemisahan route dan controller**.
+API CRUD daftar produk menggunakan **ExpressJS** dan **Prisma ORM** dengan database **SQLite**. Merupakan kelanjutan tugas sebelumnya: data produk kini disimpan di database (bukan array) dan fitur bertambah menjadi **GET, POST, PUT, dan DELETE** lengkap, plus **custom middleware** (logger, 404 handler, dan error handler) serta **pemisahan route–controller**.
 
 ## Cara Menjalankan
 
-1. Pastikan **Node.js** sudah terpasang (versi 18 atau lebih baru).
+1. Pastikan **Node.js** terpasang (versi 18+; proyek ini diuji dengan v22).
 2. Install dependensi:
    ```bash
    npm install
    ```
-3. Jalankan server:
+3. Buat file `.env` dari contoh:
+   ```bash
+   cp .env.example .env
+   ```
+4. Terapkan migrasi database (membuat `dev.db`):
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+5. Isi data awal:
+   ```bash
+   npm run db:seed
+   ```
+6. Jalankan server:
    ```bash
    npm start
    ```
-4. Server berjalan di `http://localhost:3000`.
+
+Server berjalan di `http://localhost:3000`.
+
+### Daftar npm scripts
+
+| Perintah | Fungsi |
+|---|---|
+| `npm start` | Jalankan server |
+| `npm run dev` | Jalankan server dengan auto-restart saat kode berubah |
+| `npm run db:migrate` | Terapkan perubahan skema ke database |
+| `npm run db:seed` | Isi ulang data awal (Buku dan Pulpen) |
+| `npm run db:studio` | Buka Prisma Studio untuk melihat isi database |
 
 ## Struktur Proyek
 
 ```
 tugas_api_expressjs/
-├── app.js                      # Setup Express, middleware JSON, mount router
-├── routes/products.js          # Definisi endpoint (route) produk
-├── controllers/productController.js  # Logika handler (controller)
-├── data/products.js            # Data produk di array + akses data
-├── package.json
-└── README.md
+├── app.js                        # Setup Express, middleware, mount router
+├── routes/products.js            # Definisi endpoint (route)
+├── controllers/productController.js  # Logika handler + akses Prisma
+├── middlewares/logger.js         # Custom middleware: logger request
+├── middlewares/errorHandler.js   # Custom middleware: 404 JSON + error handler
+├── db/prisma.js                  # Instance PrismaClient (adapter better-sqlite3)
+├── prisma/schema.prisma          # Skema database (model Product)
+├── prisma/migrations/            # File migrasi database
+├── prisma/seed.js                # Script pengisian data awal
+├── postman_collection.json       # Kumpulan request siap import ke Postman
+├── .env.example                  # Contoh environment variable
+└── dev.db                        # Database SQLite (dibuat lokal, di-gitignore)
 ```
 
-**Pemisahan route–controller:**
-- `routes/products.js` hanya mendefinisikan endpoint mana yang memanggil controller mana.
-- `controllers/productController.js` berisi logika handler (mencari produk, membuat ID baru, menentukan status code dan respons JSON).
-- `data/products.js` menyimpan array produk dan fungsi akses datanya.
+## Middleware
+
+| Middleware | Jenis | Fungsi |
+|---|---|---|
+| `express.json()` | Built-in | Parse body JSON pada request POST/PUT |
+| `logger` | Custom (`middlewares/logger.js`) | Mencatat timestamp, method, path, status code, dan durasi setiap request |
+| `notFound` | Custom (`middlewares/errorHandler.js`) | Mengembalikan **404 JSON** untuk endpoint yang tidak dikenal (pengganti HTML default Express) |
+| `errorHandler` | Custom (`middlewares/errorHandler.js`) | Menangkap error dari controller (via `next(err)`), mencatat stack trace, dan mengembalikan **500 JSON** |
+
+Urutan pemasangan middleware di `app.js` penting: `logger` dipasang sebelum route, `notFound` setelah semua route, dan `errorHandler` paling akhir.
 
 ## Daftar Endpoint
 
-| Method | Endpoint        | Body (JSON)                    | Respons Sukses                          | Respons Gagal |
-|--------|-----------------|--------------------------------|-----------------------------------------|---------------|
-| GET    | `/products`     | –                              | `200` array seluruh produk              | –             |
-| GET    | `/products/:id` | –                              | `200` objek produk                      | `404` `{ "message": "Produk tidak ditemukan" }` |
-| POST   | `/products`     | `{ "name": "...", "price": ... }` | `201` objek produk baru (dengan `id` baru) | `400` jika `name`/`price` kosong |
+| Method | Endpoint | Body (JSON) | Respons Sukses | Respons Gagal |
+|--------|----------|-------------|----------------|---------------|
+| GET | `/products` | – | `200` array seluruh produk | – |
+| GET | `/products/:id` | – | `200` objek produk | `404` `{ "message": "Produk tidak ditemukan" }` |
+| POST | `/products` | `{ "name": "...", "price": ... }` | `201` objek produk baru (id dibuat otomatis) | `400` jika field kosong / price bukan angka positif |
+| PUT | `/products/:id` | `{ "id": ..., "name": "...", "price": ... }` (body sama dengan POST + `id`) | `200` objek produk yang sudah diupdate | `400` validasi gagal, `404` produk tidak ada |
+| DELETE | `/products/:id` | – | `200` `{ "message": "Produk berhasil dihapus" }` | `404` produk tidak ada |
 
-## Bukti Pengujian
-
-Server dijalankan dengan `npm start`, lalu diuji dengan `curl`.
-
-### 1. GET /products → 200, array seluruh produk
-
-```bash
-curl -w "\nHTTP Status: %{http_code}\n" http://localhost:3000/products
-```
-
-```
-[{"id":1,"name":"Buku","price":15000},{"id":2,"name":"Pulpen","price":5000}]
-HTTP Status: 200
-```
-
-### 2. GET /products/1 → 200, objek produk Buku
-
-```bash
-curl -w "\nHTTP Status: %{http_code}\n" http://localhost:3000/products/1
-```
-
-```
-{"id":1,"name":"Buku","price":15000}
-HTTP Status: 200
-```
-
-### 3. GET /products/999 → 404, pesan JSON produk tidak ditemukan
-
-```bash
-curl -w "\nHTTP Status: %{http_code}\n" http://localhost:3000/products/999
-```
-
-```
-{"message":"Produk tidak ditemukan"}
-HTTP Status: 404
-```
-
-### 4. POST /products → 201, produk baru dengan ID baru
-
-```bash
-curl -w "\nHTTP Status: %{http_code}\n" -X POST http://localhost:3000/products \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Penghapus","price":3000}'
-```
-
-```
-{"id":3,"name":"Penghapus","price":3000}
-HTTP Status: 201
-```
-
-### 5. Verifikasi setelah POST — produk baru masuk ke daftar
-
-```bash
-curl http://localhost:3000/products
-```
-
-```
-[{"id":1,"name":"Buku","price":15000},{"id":2,"name":"Pulpen","price":5000},{"id":3,"name":"Penghapus","price":3000}]
-```
+Bukti pengujian lengkap (13 skenario sukses, validasi, dan error + perubahan database before/after) ada di **[LAPORAN_EVIDENCE.md](LAPORAN_EVIDENCE.md)**.
 
 ## Catatan Implementasi
 
-- **ID baru pada POST** diambil dari counter `nextId` yang terus bertambah, sehingga ID tidak pernah dipakai ulang.
-- **404 mengembalikan JSON** (`{ "message": "Produk tidak ditemukan" }`), bukan teks biasa.
-- POST memvalidasi input: jika `name` atau `price` tidak diisi, dikembalikan `400` dengan pesan JSON.
-- Data disimpan di array dalam memori — data kembali ke awal setiap server direstart (sesuai ketentuan tugas: tanpa database).
+- **Prisma 7** dengan driver adapter `better-sqlite3`; client Prisma di-generate sebagai TypeScript ke `generated/prisma` sehingga server dijalankan lewat `tsx` (`npm start`).
+- **ID otomatis dan tidak pernah dipakai ulang** — `@default(autoincrement())` pada SQLite memakai `AUTOINCREMENT`, terbukti pada pengujian: setelah produk id 3 dihapus, POST berikutnya mendapat id 4.
+- **Error `P2025` dari Prisma** (record tidak ditemukan saat update/delete) dipetakan menjadi respons `404`.
+- **Data persisten** — tersimpan di `dev.db`, bertahan saat server direstart (peningkatan dari versi array tugas sebelumnya).
+- **Seed idempoten** — `deleteMany` dulu sebelum insert, aman dijalankan berulang kali.
+- Route dan controller tetap terpisah: `routes/products.js` hanya mendefinisikan endpoint, logika ada di `controllers/productController.js`.
